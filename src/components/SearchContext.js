@@ -1,36 +1,89 @@
-import { createContext, useContext, useState } from "react"
+import { createContext, useContext, useEffect, useState } from "react"
 import data from "./data.json"
 
 const SearchContext = createContext(undefined);
 
 export const SearchProvider = ({children}) => {
-    const val = data;
-    const [mtg, setMtg] = useState(val); 
-    const [searchVal, setSearchVal] = useState(""); 
+    const [mtg, setMtg] = useState([]);
+    const [searchVal, setSearchVal] = useState("");
+    const [cart, setCart] = useState([]);
 
-    const handleSearchClick = () => { 
-        if (searchVal === "") { setMtg(val); return;} 
-        const filterBySearch = val.filter((item) => { 
-            if (item.name.toLowerCase() 
+    const promise = Promise.resolve(data);
+
+    useEffect(() => {const promise1 = new Promise((resolve, reject) => {
+        setTimeout(() => {
+            promise.then(val => setMtg(val));
+        }, 1000);
+    });},[data]);
+
+    const handleSearchClick = () => {
+        if (searchVal === "") { setMtg(data); return;}
+        const filterBySearch = mtg.filter((item) => {
+            if (item.name.toLowerCase()
                 .includes(searchVal.toLowerCase())) { return item.name; }
-            else if (item.description.toLowerCase() 
+            else if (item.description.toLowerCase()
                 .includes(searchVal.toLowerCase())) { return item.description; }
-            else{
-                return console.error();
-            } 
-        }) 
+        })
         setMtg(filterBySearch);
         setSearchVal("");
-    } 
+    }
+
+    const getItemQuantity =(id) => {
+        return cart.find(item => item.id === id)?.quantity || 0
+    }
+
+    const increaseItemQuantity = (id) =>{
+        setCart(currItem => {
+            if (currItem.find(item => item.id === id) == null){
+                return[...currItem, {id, quantity:1}]
+            }
+            else{
+                return currItem.map(item => {
+                    if(item.id === id){
+                        return { ...item, quantity: item.quantity +1}
+                    }else{
+                        return item
+                    }
+                })
+            }
+        })
+    }
+
+    const decreaseItemQuantity = (id) =>{
+        setCart(currItem => {
+            if (currItem.find(item => item.id === id) == null){
+                return[...currItem, {id, quantity:1}]
+            }
+            else{
+                return currItem.map(item => {
+                    if(item.id === id){
+                        return { ...item, quantity: item.quantity -1}
+                    }else{
+                        return item
+                    }
+                })
+            }
+        })
+    }
+
+    const removeItem = (id) =>{
+        setCart(currItem => {
+            return currItem.filter(item => item.id !== id)
+        })
+    }
 
     return (
         <SearchContext.Provider
         value={{
-            val,
             mtg,
             searchVal,
+            cart,
             setSearchVal,
             handleSearchClick,
+            getItemQuantity,
+            increaseItemQuantity,
+            decreaseItemQuantity,
+            removeItem,
         }}>
             {children}
         </SearchContext.Provider>

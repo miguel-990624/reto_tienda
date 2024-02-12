@@ -1,26 +1,50 @@
 import { Button, Card, Flex } from "antd";
 import { useSearchContext } from "./SearchContext";
+import { Switch, Typography } from 'antd';
+import { useState } from "react";
 const { Meta } = Card;
 
 export const Cards = () => {
-    const {mtg} = useSearchContext();
-    const dt = mtg
+  const [ellipsis, setEllipsis] = useState(true);
 
-    return (
-        <Flex wrap="wrap" gap="1rem" className="mainContent">
-            {mtg.map((item) => (
-                <Card
-                    key={item.url}
-                    hoverable
-                    size="small"
-                    cover={<img alt={item.name} src={item.url} />}
-                >
-                    <Flex vertical="false"  gap="middle" align="flex-start" className="card">
-                        <Meta title={item.name} description={item.description} ellipsis="true" />
-                        <Button type="primary">Add to cart</Button>
-                    </Flex>
-                </Card>
-            ))}
-        </Flex>
-    );
-}
+  const {
+    mtg,
+    getItemQuantity,
+    increaseItemQuantity,
+    decreaseItemQuantity,
+    removeItem,
+  } = useSearchContext();
+
+  return (
+    <Flex wrap="wrap" justify="center" gap="3%" >
+      {mtg.map((item) => {
+        const metaProps = {
+          title: item.id,
+          description: item.description,
+          className:"content",
+        };
+
+        return (
+          <Card
+            key={item.url}
+            hoverable
+            size="small"
+            cover={<img alt={item.id} src={item.url} />}
+          >
+            <Flex
+              vertical="false"
+              gap="1rem"
+              justify="center"
+            >
+              <Meta
+                {...metaProps}
+                ellipsis={ellipsis ? { rows: 2, expandable: true, symbol: 'more' } : false}
+              />
+              <Button type="primary" onClick={()=>increaseItemQuantity(item.id)}>Add to cart</Button>
+            </Flex>
+          </Card>
+        );
+      })}
+    </Flex>
+  );
+};
