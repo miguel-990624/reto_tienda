@@ -1,8 +1,8 @@
-.card{
+.content{
     overflow: hidden;
-    text-overflow: ellipsis;
+    white-space: nowrap;
 }
 
 .header{
-    padding: 1rem;
+    padding: 3rem;
 }
